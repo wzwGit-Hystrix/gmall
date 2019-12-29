@@ -22,6 +22,8 @@ public class ManageServiceImpl implements ManageService {
     private BaseAttrInfoMapper baseAttrInfoMapper;
     @Autowired
     private BaseAttrValueMapper baseAttrValueMapper;
+    @Autowired
+    private SpuInfoMapper spuInfoMapper;
 
     @Override
     public List<BaseCatalog1> getCatalog1() {
@@ -82,5 +84,12 @@ public class ManageServiceImpl implements ManageService {
         List<BaseAttrValue> selectList = baseAttrValueMapper.select (baseAttrValue);
         baseAttrInfo.setAttrValueList (selectList);
         return baseAttrInfo;
+    }
+
+    @Override
+    public List<SpuInfo> getSpuList(String catalog3Id) {
+        SpuInfo spuInfo = new SpuInfo ();
+        spuInfo.setCatalog3Id (catalog3Id);
+        return spuInfoMapper.select (spuInfo);
     }
 }
