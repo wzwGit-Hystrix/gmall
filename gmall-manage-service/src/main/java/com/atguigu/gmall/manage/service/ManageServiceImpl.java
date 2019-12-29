@@ -24,6 +24,15 @@ public class ManageServiceImpl implements ManageService {
     private BaseAttrValueMapper baseAttrValueMapper;
     @Autowired
     private SpuInfoMapper spuInfoMapper;
+    @Autowired
+    private BaseSaleAttrMapper baseSaleAttrMapper;
+    @Autowired
+    private SpuSaleAttrMapper spuSaleAttrMapper;
+    @Autowired
+    private SpuSaleAttrValueMapper spuSaleAttrValueMapper;
+    @Autowired
+    private SpuImageMapper spuImageMapper;
+
 
     @Override
     public List<BaseCatalog1> getCatalog1() {
@@ -91,5 +100,45 @@ public class ManageServiceImpl implements ManageService {
         SpuInfo spuInfo = new SpuInfo ();
         spuInfo.setCatalog3Id (catalog3Id);
         return spuInfoMapper.select (spuInfo);
+    }
+
+    @Override
+    public List<BaseSaleAttr> getBaseSaleAttrList() {
+        return baseSaleAttrMapper.selectAll ();
+    }
+
+    @Override
+    @Transactional
+    public void saveSpuInfo(SpuInfo spuInfo) {
+        //此时要保存进spuinfo ，image，saleattr，saleattrvalue
+        spuInfoMapper.insertSelective (spuInfo);
+        List<SpuImage> spuImageList = spuInfo.getSpuImageList ();
+        //保存图片
+        if (spuImageList != null && spuImageList.size () > 0) {
+            for (SpuImage spuImage : spuImageList) {
+                spuImage.setSpuId (spuInfo.getId ());
+                spuImageMapper.insertSelective (spuImage);
+            }
+        }
+
+        //保存销售属性
+        List<SpuSaleAttr> spuSaleAttrList = spuInfo.getSpuSaleAttrList ();
+        if (spuSaleAttrList != null && spuSaleAttrList.size () > 0) {
+            for (SpuSaleAttr spuSaleAttr : spuSaleAttrList) {
+                spuSaleAttr.setSpuId (spuInfo.getId ());
+                spuSaleAttrMapper.insertSelective (spuSaleAttr);
+
+                //保存销售属性值
+                List<SpuSaleAttrValue> spuSaleAttrValueList = spuSaleAttr.getSpuSaleAttrValueList ();
+                if (spuSaleAttrValueList != null && spuSaleAttrValueList.size () > 0) {
+                    for (SpuSaleAttrValue spuSaleAttrValue : spuSaleAttrValueList) {
+                        spuSaleAttrValue.setSpuId (spuInfo.getId ());
+                        spuSaleAttrValueMapper.insertSelective (spuSaleAttrValue);
+                    }
+                }
+
+            }
+        }
+
     }
 }
