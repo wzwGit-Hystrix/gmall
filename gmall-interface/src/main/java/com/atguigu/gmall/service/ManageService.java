@@ -92,6 +92,7 @@ public interface ManageService {
 
     /**
      * 通过三级属性id查询平台属性和平台属性值
+     *
      * @param catalog3Id
      * @return
      */
@@ -99,7 +100,31 @@ public interface ManageService {
 
     /**
      * 保存sku信息
+     *
      * @param skuInfo
      */
     void saveSkuInfo(SkuInfo skuInfo);
+
+    /**
+     * 通过skuId查询skuInfo
+     *
+     * @param skuId
+     * @return
+     */
+    SkuInfo getSkuInfo(String skuId);
+
+
+    /**
+     * 查询销售属性和销售属性值并且锁定
+     *
+     * @param skuInfo
+     */
+    List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(SkuInfo skuInfo);
+
+    /**
+     * 查询skuid和销售属性值的集合
+     * @param spuId
+     * @return
+     */
+    List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId);
 }

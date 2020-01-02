@@ -8,10 +8,10 @@ import javax.persistence.Transient;
 import java.io.Serializable;
 
 @Data
-public class SpuSaleAttrValue implements Serializable{
+public class SpuSaleAttrValue implements Serializable {
     @Id
     @Column
-    String id ;
+    String id;
 
     @Column
     String spuId;
@@ -22,7 +22,7 @@ public class SpuSaleAttrValue implements Serializable{
     @Column
     String saleAttrValueName;
 
-    @Transient
+    @Transient//销售属性值，判断当前销售属性值是否被选中
     String isChecked;
 
 }

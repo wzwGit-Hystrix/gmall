@@ -27,7 +27,7 @@ public class SkuManageController {
      * @return
      */
     @RequestMapping("spuImageList")
-    public List<SpuImage> getSpuImageList(String spuId, SpuImage spuImage) {
+    public List<SpuImage> getSpuImageList(SpuImage spuImage) {
         return manageService.getSpuImageList (spuImage);
     }
 

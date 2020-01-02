@@ -7,10 +7,18 @@ import java.util.List;
 
 public interface SpuSaleAttrMapper extends Mapper<SpuSaleAttr> {
     /**
-     * 跟警察spuid查询销售属性和销售属性值
+     * 跟据spuid查询销售属性和销售属性值
      *
      * @param spuId
      * @return
      */
     List<SpuSaleAttr> selectSpuSaleAttrList(String spuId);
+
+    /**
+     * 查询销售属性和销售属性值
+     * @param skuId
+     * @param spuId
+     * @return
+     */
+    List<SpuSaleAttr> selectSpuSaleAttrListCheckBySku(String skuId, String spuId);
 }
