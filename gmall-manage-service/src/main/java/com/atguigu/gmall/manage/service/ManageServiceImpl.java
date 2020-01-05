@@ -286,7 +286,7 @@ public class ManageServiceImpl implements ManageService {
             //定义key值
             String skuKey = ManageConst.SKUKEY_PREFIX + skuId + ManageConst.SKUKEY_SUFFIX;
             String skuJson = jedis.get (skuKey);
-            Boolean exists = jedis.exists (skuKey);
+            //Boolean exists = jedis.exists (skuKey);
             if (skuJson == null || skuJson.length () == 0) {
                 //redis中没有数据
                 System.out.println ("------------------redis中没有数据");
@@ -348,11 +348,15 @@ public class ManageServiceImpl implements ManageService {
 //        }catch (JedisConnectionException e){
 //            e.printStackTrace();
 //        }
-        System.out.println ("开始查询数据库---------------");
+       // System.out.println ("开始查询数据库---------------");
         SkuInfo skuInfo = skuInfoMapper.selectByPrimaryKey (skuId);
         SkuImage skuImage = new SkuImage ();
-        skuImage.setSkuId (skuInfo.getId ());
+        skuImage.setSkuId (skuId);
         List<SkuImage> skuImageList = skuImageMapper.select (skuImage);
+        //skuattrvlue
+        SkuAttrValue skuAttrValue = new SkuAttrValue ();
+        skuAttrValue.setSkuId (skuId);
+        skuInfo.setSkuAttrValueList (skuAttrValueMapper.select (skuAttrValue));
         skuInfo.setSkuImageList (skuImageList);
         return skuInfo;
     }
