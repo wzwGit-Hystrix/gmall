@@ -15,5 +15,5 @@ public class SkuLsParams implements Serializable {
 
     int pageNo=1;
 
-    int pageSize=20;
+    int pageSize=3;
 }

@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.atguigu.gmall.bean.SkuLsInfo;
 import com.atguigu.gmall.bean.SkuLsParams;
 import com.atguigu.gmall.bean.SkuLsResult;
+import com.atguigu.gmall.config.RedisUtil;
 import com.atguigu.gmall.service.ListService;
 import io.searchbox.client.JestClient;
 
@@ -12,6 +13,7 @@ import io.searchbox.core.Index;
 
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import io.searchbox.core.Update;
 import io.searchbox.core.search.aggregation.Aggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 import org.elasticsearch.index.query.*;
@@ -21,6 +23,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +36,9 @@ public class ListServiceImpl implements ListService {
 
     public static final String ES_INDEX = "gmall";
     public static final String ES_TYPE = "SkuInfo";
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public void saveSkuInfo(SkuLsInfo skuLsInfo) {
@@ -63,6 +69,47 @@ public class ListServiceImpl implements ListService {
 
         SkuLsResult skuLsResult = makeResultForSearch (searchResult, skuLsParams);
         return skuLsResult;
+    }
+
+    @Override
+    public void incrHotScore(String skuId) {
+        //记录用户访问商品的次数
+        Jedis jedis = redisUtil.getJedis ();
+        //使用zset存储数据
+        Double hotScore = jedis.zincrby ("hotScore", 1, "skuId:" + skuId);
+        if (hotScore % 10 == 0) {
+            // 更新es
+            updateHotScore (skuId, Math.round (hotScore));
+        }
+    }
+
+    /**
+     * 更新es
+     *
+     * @param skuId
+     * @param round
+     */
+    private void updateHotScore(String skuId, long hotScore) {
+         /*
+        1.  定义dsl 语句
+            POST gmall/SkuInfo/34/_update { }
+        2.  准备执行的动作
+        3.  执行
+         */
+        String upd = "{\n" +
+                "  \"doc\": {\n" +
+                "      \"hotScore\": " + hotScore + "\n" +
+                "  }\n" +
+                "}";
+
+        // update
+        Update update = new Update.Builder (upd).index (ES_INDEX).type (ES_TYPE).id (skuId).build ();
+
+        try {
+            jestClient.execute (update);
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
     }
 
     /**
@@ -181,7 +228,7 @@ public class ListServiceImpl implements ListService {
         searchSourceBuilder.size (skuLsParams.getPageSize ());
 
         //聚合
-        TermsBuilder groupby_attr = AggregationBuilders.terms ("groupby_attr").field ("skuAttrValueList.valueId.keyWord");
+        TermsBuilder groupby_attr = AggregationBuilders.terms ("groupby_attr").field ("skuAttrValueList.valueId");
         searchSourceBuilder.aggregation (groupby_attr);
 
         //将bool放进query中

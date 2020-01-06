@@ -46,6 +46,7 @@ public class SkuManageController {
      */
     @RequestMapping("spuSaleAttrList")
     public List<SpuSaleAttr> getSpuSaleAttrList(String spuId) {
+
         return manageService.getSpuSaleAttrList (spuId);
     }
 

@@ -2,13 +2,12 @@ package com.atguigu.gmall.manage.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.config.RedisUtil;
 import com.atguigu.gmall.manage.constant.ManageConst;
 import com.atguigu.gmall.manage.mapper.*;
 import com.atguigu.gmall.service.ManageService;
-import jodd.time.TimeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -255,7 +254,7 @@ public class ManageServiceImpl implements ManageService {
                 }
             } else {
                 //缓存中有数据
-                System.out.println ("直接查询redis-----------------------" );
+                System.out.println ("直接查询redis-----------------------");
                 skuInfo = JSON.parseObject (skuJson, SkuInfo.class);
                 return skuInfo;
             }
@@ -348,7 +347,7 @@ public class ManageServiceImpl implements ManageService {
 //        }catch (JedisConnectionException e){
 //            e.printStackTrace();
 //        }
-       // System.out.println ("开始查询数据库---------------");
+        // System.out.println ("开始查询数据库---------------");
         SkuInfo skuInfo = skuInfoMapper.selectByPrimaryKey (skuId);
         SkuImage skuImage = new SkuImage ();
         skuImage.setSkuId (skuId);
@@ -369,6 +368,17 @@ public class ManageServiceImpl implements ManageService {
     @Override
     public List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId) {
         return skuSaleAttrValueMapper.selectSkuSaleAttrValueListBySpu (spuId);
+    }
+
+    @Override
+    public List<BaseAttrInfo> getAttrList(List<String> attrValueIdList) {
+        //使用方法将集合转化为字符串，并且之间用，进行分割
+       // String attrValueIds = StringUtils.join (attrValueIdList.toArray (), ",");
+        String attrValueIds  = org.apache.commons.lang3.StringUtils.join(attrValueIdList.toArray(), ",");
+
+        System.out.println ("-------------输入的字符串" + attrValueIds);
+        //重写mapper
+        return baseAttrInfoMapper.selectAttrInfoListByIds (attrValueIds);
     }
 
 
